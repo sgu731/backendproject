@@ -1,4 +1,4 @@
-package user;
+package org.example.user;
 
 public record User(
         Long id,

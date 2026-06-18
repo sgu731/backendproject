@@ -1,4 +1,4 @@
-package user;
+package org.example.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
