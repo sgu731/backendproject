@@ -1,6 +1,7 @@
 package org.example.product;
 
 import lombok.RequiredArgsConstructor;
+import org.example.product.dto.UpdateProductRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +34,41 @@ public class ProductRepository {
                 product.price(),
                 product.stock()
         );
+    }
+
+    public void update(
+            Long id,
+            UpdateProductRequest request) {
+
+        String sql = """
+            update products
+            set
+                name = ?,
+                price = ?,
+                stock = ?,
+                updated_at = now()
+            where id = ?
+            and deleted = false
+            """;
+
+        jdbcTemplate.update(
+                sql,
+                request.name(),
+                request.price(),
+                request.stock(),
+                id);
+    }
+
+    public void delete(Long id) {
+
+        String sql = """
+            update products
+            set deleted = true
+            where id = ?
+            """;
+
+        jdbcTemplate.update(sql, id);
+
     }
 
     public List<Product> findAll(
@@ -80,5 +116,35 @@ public class ProductRepository {
                 sql,
                 Long.class
         );
+    }
+
+    public Optional<Product> findById(Long id) {
+
+        String sql = """
+            select
+                id,
+                name,
+                price,
+                stock,
+                deleted
+            from products
+            where id = ?
+            and deleted = false
+            """;
+
+        List<Product> products =
+                jdbcTemplate.query(
+                        sql,
+                        (rs, rowNum) ->
+                                new Product(
+                                        rs.getLong("id"),
+                                        rs.getString("name"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getInt("stock"),
+                                        rs.getBoolean("deleted")
+                                ),
+                        id);
+
+        return products.stream().findFirst();
     }
 }

@@ -6,6 +6,7 @@ import org.example.product.Product;
 import org.example.product.ProductRepository;
 import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
+import org.example.product.dto.UpdateProductRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +29,46 @@ public class ProductService {
                         false);
 
         repository.save(product);
+    }
+
+    public void update(
+            Long id,
+            UpdateProductRequest request) {
+
+        repository.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Product not found"));
+
+        repository.update(id, request);
+
+    }
+
+    public void delete(Long id) {
+
+        repository.findById(id)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Product not found"));
+
+        repository.delete(id);
+
+    }
+
+    public ProductResponse getProduct(Long id) {
+
+        Product product =
+                repository.findById(id)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Product not found"));
+
+        return new ProductResponse(
+                product.id(),
+                product.name(),
+                product.price(),
+                product.stock()
+        );
     }
 
     public PageResponse<ProductResponse> getProducts(
