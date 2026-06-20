@@ -23,3 +23,16 @@ VALUES
         '$2a$10$G7R6vFrLvso4NPY8QhU2wuXpm2xn3OJzmQA24.EtksRVK1JgmWQt.',
         'ADMIN'
     );
+
+INSERT INTO users
+(
+    username,
+    password,
+    role
+)
+VALUES
+    (
+        'user',
+        '$2a$10$G7R6vFrLvso4NPY8QhU2wuXpm2xn3OJzmQA24.EtksRVK1JgmWQt.',
+        'USER'
+    );

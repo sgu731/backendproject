@@ -7,6 +7,7 @@ import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
 import org.example.product.dto.UpdateProductRequest;
 import org.example.product.service.ProductService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +17,7 @@ public class ProductController {
 
     private final ProductService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public void create(
             @RequestBody
@@ -26,6 +28,7 @@ public class ProductController {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public void update(
             @PathVariable Long id,
@@ -34,6 +37,7 @@ public class ProductController {
         service.update(id, request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(
             @PathVariable Long id) {

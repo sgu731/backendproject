@@ -1,13 +1,16 @@
 package org.example.product.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.common.dto.PageResponse;
+import org.example.common.exception.ProductNotFoundException;
 import org.example.product.Product;
 import org.example.product.ProductRepository;
 import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
 import org.example.product.dto.UpdateProductRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -18,6 +21,8 @@ public class ProductService {
     private final ProductRepository repository;
 
     public void create(
+            @Valid
+            @RequestBody
             CreateProductRequest request) {
 
         Product product =
@@ -37,8 +42,7 @@ public class ProductService {
 
         repository.findById(id)
                 .orElseThrow(
-                        () -> new RuntimeException(
-                                "Product not found"));
+                        ProductNotFoundException::new);
 
         repository.update(id, request);
 
@@ -48,8 +52,7 @@ public class ProductService {
 
         repository.findById(id)
                 .orElseThrow(
-                        () -> new RuntimeException(
-                                "Product not found"));
+                        ProductNotFoundException::new);
 
         repository.delete(id);
 
@@ -60,8 +63,7 @@ public class ProductService {
         Product product =
                 repository.findById(id)
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Product not found"));
+                                ProductNotFoundException::new);
 
         return new ProductResponse(
                 product.id(),
