@@ -10,3 +10,16 @@ CREATE TABLE users
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO users
+(
+    username,
+    password,
+    role
+)
+VALUES
+    (
+        'admin',
+        '$2a$10$G7R6vFrLvso4NPY8QhU2wuXpm2xn3OJzmQA24.EtksRVK1JgmWQt.',
+        'ADMIN'
+    );

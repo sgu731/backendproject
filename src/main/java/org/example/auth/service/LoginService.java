@@ -19,7 +19,6 @@ public class LoginService {
     private final JwtService jwtService;
 
     public LoginResponse login(LoginRequest request) {
-
         User user = userRepository
                 .findByUsername(request.username())
                 .orElseThrow(
