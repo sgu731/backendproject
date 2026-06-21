@@ -1,7 +1,8 @@
 package org.example.product.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.AuditAction;
+import org.example.audit.service.AuditLogService;
 import org.example.common.dto.PageResponse;
 import org.example.common.exception.ProductNotFoundException;
 import org.example.product.Product;
@@ -10,7 +11,6 @@ import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
 import org.example.product.dto.UpdateProductRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -19,11 +19,11 @@ import java.util.*;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final AuditLogService auditLogService;
 
     public void create(
-            @Valid
-            @RequestBody
-            CreateProductRequest request) {
+            CreateProductRequest request,
+            String username) {
 
         Product product =
                 new Product(
@@ -34,28 +34,54 @@ public class ProductService {
                         false);
 
         repository.save(product);
+
+        auditLogService.log(
+                username,
+                AuditAction.CREATE_PRODUCT,
+                null,
+                product.toString());
     }
 
     public void update(
             Long id,
-            UpdateProductRequest request) {
+            UpdateProductRequest request,
+            String username) {
 
-        repository.findById(id)
-                .orElseThrow(
-                        ProductNotFoundException::new);
+        Product oldProduct =
+                repository.findById(id)
+                        .orElseThrow(
+                                ProductNotFoundException::new);
 
         repository.update(id, request);
 
+        Product newProduct =
+                repository.findById(id)
+                        .orElseThrow(
+                                ProductNotFoundException::new);
+
+        auditLogService.log(
+                username,
+                AuditAction.UPDATE_PRODUCT,
+                oldProduct.toString(),
+                newProduct.toString());
     }
 
-    public void delete(Long id) {
+    public void delete(
+            Long id,
+            String username) {
 
-        repository.findById(id)
-                .orElseThrow(
-                        ProductNotFoundException::new);
+        Product oldProduct =
+                repository.findById(id)
+                        .orElseThrow(
+                                ProductNotFoundException::new);
 
         repository.delete(id);
 
+        auditLogService.log(
+                username,
+                AuditAction.DELETE_PRODUCT,
+                oldProduct.toString(),
+                null);
     }
 
     public ProductResponse getProduct(Long id) {
@@ -89,14 +115,12 @@ public class ProductService {
                                 ))
                         .toList();
 
-        long total =
-                repository.count();
+        long total = repository.count();
 
         return new PageResponse<>(
                 content,
                 page,
                 size,
-                total
-        );
+                total);
     }
 }

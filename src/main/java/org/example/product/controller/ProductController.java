@@ -10,6 +10,7 @@ import org.example.product.dto.ProductResponse;
 import org.example.product.dto.UpdateProductRequest;
 import org.example.product.service.ProductService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,31 +25,40 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public void create(
-            @RequestBody
             @Valid
-            CreateProductRequest request) {
+            @RequestBody
+            CreateProductRequest request,
+            Authentication authentication) {
 
-        service.create(request);
+        service.create(request, authentication.getName());
 
     }
 
     @Operation(summary = "Update product by id")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void update(
             @PathVariable Long id,
-            @RequestBody UpdateProductRequest request) {
+            @RequestBody
+            UpdateProductRequest request,
+            Authentication authentication) {
 
-        service.update(id, request);
+        service.update(
+                id,
+                request,
+                authentication.getName());
     }
 
     @Operation(summary = "Soft Delete product by id")
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            Authentication authentication) {
 
-        service.delete(id);
+        service.delete(
+                id,
+                authentication.getName());
 
     }
 
