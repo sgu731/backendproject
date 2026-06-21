@@ -147,4 +147,26 @@ public class ProductRepository {
 
         return products.stream().findFirst();
     }
+
+    public boolean decreaseStock(
+            Long productId,
+            Integer quantity) {
+
+        String sql = """
+            UPDATE products
+            SET stock = stock - ?
+            WHERE id = ?
+              AND deleted = false
+              AND stock >= ?
+            """;
+
+        int affectedRows =
+                jdbcTemplate.update(
+                        sql,
+                        quantity,
+                        productId,
+                        quantity);
+
+        return affectedRows == 1;
+    }
 }

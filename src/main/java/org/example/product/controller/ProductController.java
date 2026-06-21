@@ -1,5 +1,7 @@
 package org.example.product.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.common.dto.PageResponse;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Tag(name = "Product")
 public class ProductController {
 
     private final ProductService service;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create product")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public void create(
             @RequestBody
             @Valid
@@ -28,6 +32,7 @@ public class ProductController {
 
     }
 
+    @Operation(summary = "Update product by id")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public void update(
@@ -37,6 +42,7 @@ public class ProductController {
         service.update(id, request);
     }
 
+    @Operation(summary = "Soft Delete product by id")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(
@@ -46,6 +52,7 @@ public class ProductController {
 
     }
 
+    @Operation(summary = "Get product by id")
     @GetMapping("/{id}")
     public ProductResponse getProduct(
             @PathVariable Long id) {
@@ -54,6 +61,7 @@ public class ProductController {
     }
 
     // GET /api/products?page=0&size=10
+    @Operation(summary = "Get products")
     @GetMapping
     public PageResponse<ProductResponse> getProducts(
 
