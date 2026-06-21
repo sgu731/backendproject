@@ -84,5 +84,5 @@ USER
 username:
 user
 password:
-user123
+admin123
 ```
