@@ -1,6 +1,7 @@
 package org.example.common.handler;
 
 import org.example.common.dto.ErrorResponse;
+import org.example.common.exception.InsufficientStockException;
 import org.example.common.exception.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,4 +62,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInsufficientStock(
+            InsufficientStockException e) {
+
+        return new ErrorResponse(
+                "INSUFFICIENT_STOCK",
+                e.getMessage()
+        );
+    }
 }
