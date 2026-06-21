@@ -15,8 +15,11 @@ CREATE TABLE products
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_product_deleted
-    ON products(deleted);
-
 CREATE INDEX idx_product_name
     ON products(name);
+
+CREATE INDEX idx_product_price
+    ON products(price);
+
+CREATE INDEX idx_product_deleted
+    ON products(deleted);

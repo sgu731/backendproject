@@ -1,6 +1,7 @@
 package org.example.product;
 
 import lombok.RequiredArgsConstructor;
+import org.example.product.dto.ProductSearchRequest;
 import org.example.product.dto.UpdateProductRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -71,53 +72,6 @@ public class ProductRepository {
 
     }
 
-    public List<Product> findAll(
-            int page,
-            int size) {
-
-        String sql = """
-            select
-                id,
-                name,
-                price,
-                stock,
-                deleted
-            from products
-            where deleted = false
-            order by id
-            limit ?
-            offset ?
-            """;
-
-        return jdbcTemplate.query(
-                sql,
-                (rs, rowNum) ->
-                        new Product(
-                                rs.getLong("id"),
-                                rs.getString("name"),
-                                rs.getBigDecimal("price"),
-                                rs.getInt("stock"),
-                                rs.getBoolean("deleted")
-                        ),
-                size,
-                page * size
-        );
-    }
-
-    public Long count() {
-
-        String sql = """
-            select count(*)
-            from products
-            where deleted = false
-            """;
-
-        return jdbcTemplate.queryForObject(
-                sql,
-                Long.class
-        );
-    }
-
     public Optional<Product> findById(Long id) {
 
         String sql = """
@@ -146,6 +100,121 @@ public class ProductRepository {
                         id);
 
         return products.stream().findFirst();
+    }
+
+    public List<Product> search(ProductSearchRequest request) {
+
+        StringBuilder sql = new StringBuilder("""
+        select
+            id,
+            name,
+            price,
+            stock,
+            deleted
+        from products
+        where deleted = false
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (request.keyword() != null
+                && !request.keyword().isBlank()) {
+
+            sql.append(" and name ilike ? ");
+
+            params.add("%" + request.keyword() + "%");
+        }
+
+        if (request.minPrice() != null) {
+
+            sql.append(" and price >= ? ");
+
+            params.add(request.minPrice());
+        }
+
+        if (request.maxPrice() != null) {
+
+            sql.append(" and price <= ? ");
+
+            params.add(request.maxPrice());
+        }
+
+        String sortBy = switch (request.sortBy()) {
+
+            case "name" -> "name";
+
+            case "price" -> "price";
+
+            default -> "id";
+        };
+
+        String direction =
+                "desc".equalsIgnoreCase(request.direction())
+                        ? "desc"
+                        : "asc";
+
+        sql.append(" order by ")
+                .append(sortBy)
+                .append(" ")
+                .append(direction);
+
+        sql.append(" limit ? offset ? ");
+
+        params.add(request.size());
+        params.add(request.page() * request.size());
+
+        return jdbcTemplate.query(
+
+                sql.toString(),
+
+                (rs, rowNum) ->
+                        new Product(
+                                rs.getLong("id"),
+                                rs.getString("name"),
+                                rs.getBigDecimal("price"),
+                                rs.getInt("stock"),
+                                rs.getBoolean("deleted")
+                        ),
+
+                params.toArray()
+        );
+    }
+
+    public Long count(ProductSearchRequest request) {
+
+        StringBuilder sql = new StringBuilder("""
+        select count(*)
+        from products
+        where deleted = false
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (request.keyword() != null && !request.keyword().isBlank()) {
+
+            sql.append(" and name ilike ? ");
+
+            params.add("%" + request.keyword() + "%");
+        }
+
+        if (request.minPrice() != null) {
+
+            sql.append(" and price >= ? ");
+
+            params.add(request.minPrice());
+        }
+
+        if (request.maxPrice() != null) {
+
+            sql.append(" and price <= ? ");
+
+            params.add(request.maxPrice());
+        }
+
+        return jdbcTemplate.queryForObject(
+                sql.toString(),
+                Long.class,
+                params.toArray());
     }
 
     public boolean decreaseStock(

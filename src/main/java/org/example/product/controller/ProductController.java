@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.common.dto.PageResponse;
 import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
+import org.example.product.dto.ProductSearchRequest;
 import org.example.product.dto.UpdateProductRequest;
 import org.example.product.service.ProductService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/products")
@@ -75,15 +78,45 @@ public class ProductController {
     @GetMapping
     public PageResponse<ProductResponse> getProducts(
 
+            @RequestParam(defaultValue = "")
+            String keyword,
+
+            @RequestParam(required = false)
+            BigDecimal minPrice,
+
+            @RequestParam(required = false)
+            BigDecimal maxPrice,
+
+            @RequestParam(defaultValue = "id")
+            String sortBy,
+
+            @RequestParam(defaultValue = "asc")
+            String direction,
+
             @RequestParam(defaultValue = "0")
             int page,
 
             @RequestParam(defaultValue = "10")
             int size) {
 
-        return service.getProducts(
-                page,
-                size);
+        return service.search(
 
+                new ProductSearchRequest(
+
+                        keyword,
+
+                        minPrice,
+
+                        maxPrice,
+
+                        sortBy,
+
+                        direction,
+
+                        page,
+
+                        size
+                )
+        );
     }
 }

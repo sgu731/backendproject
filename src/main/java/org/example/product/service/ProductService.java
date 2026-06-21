@@ -9,6 +9,7 @@ import org.example.product.Product;
 import org.example.product.ProductRepository;
 import org.example.product.dto.CreateProductRequest;
 import org.example.product.dto.ProductResponse;
+import org.example.product.dto.ProductSearchRequest;
 import org.example.product.dto.UpdateProductRequest;
 import org.springframework.stereotype.Service;
 
@@ -99,12 +100,12 @@ public class ProductService {
         );
     }
 
-    public PageResponse<ProductResponse> getProducts(
-            int page,
-            int size) {
+    public PageResponse<ProductResponse> search(
+            ProductSearchRequest request) {
 
         List<ProductResponse> content =
-                repository.findAll(page, size)
+
+                repository.search(request)
                         .stream()
                         .map(product ->
                                 new ProductResponse(
@@ -115,12 +116,18 @@ public class ProductService {
                                 ))
                         .toList();
 
-        long total = repository.count();
+        Long total =
+                repository.count(request);
 
         return new PageResponse<>(
+
                 content,
-                page,
-                size,
-                total);
+
+                request.page(),
+
+                request.size(),
+
+                total
+        );
     }
 }
